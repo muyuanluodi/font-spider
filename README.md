@@ -184,21 +184,101 @@ font-spider ./dist/**/*.html
 
 **解决**：检查是否有不必要的文字内容，或考虑分页处理
 
+## 📱 微信小程序中使用自定义字体
+
+### 使用 Font-Spider 压缩字体（推荐）
+
+微信小程序对字体文件大小有严格限制，使用 Font-Spider 压缩字体是最优解决方案。
+
+#### 实现步骤：
+
+##### 1. 准备 HTML 文件并压缩字体
+
+首先创建一个包含小程序中所有需要显示文字的 HTML 文件：
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @font-face {
+            font-family: 'CustomFont';
+            src: url('./YOUSHEBIAOTIHEI-2.TTF') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        .text {
+            font-family: 'CustomFont';
+        }
+    </style>
+</head>
+<body>
+    <!-- 在这里列出小程序中所有需要使用自定义字体的文字 -->
+    <div class="text">首页欢迎页面标题所有文字内容...</div>
+</body>
+</html>
+```
+
+运行压缩命令：
+
+```bash
+font-spider index.html
+```
+
+##### 2. 将压缩后的字体转换为 Base64
+
+压缩完成后，将字体文件转换为 Base64 编码。可以使用在线工具或命令行：
+
+**Node.js 转换方法：**
+
+```javascript
+// convert-font.js
+const fs = require('fs');
+
+const fontPath = './YOUSHEBIAOTIHEI-2.TTF';
+const fontBuffer = fs.readFileSync(fontPath);
+const base64Font = fontBuffer.toString('base64');
+const base64Str = `data:font/truetype;charset=utf-8;base64,${base64Font}`;
+
+fs.writeFileSync('font-base64.txt', base64Str);
+console.log('字体转换完成！');
+console.log('文件大小:', (base64Font.length / 1024).toFixed(2), 'KB');
+```
+
+运行转换：
+
+```bash
+node convert-font.js
+```
+
+##### 3. 在小程序中使用
+
+在小程序的 `app.js` 或页面 JS 文件中加载字体：
+
+```javascript
+// app.js
+App({
+  onLaunch() {
+    // 加载自定义字体
+    wx.loadFontFace({
+      family: 'CustomFont',
+      source: 'data:font/truetype;charset=utf-8;base64,AAEAAAALAIAAAwAwT1MvMg8SBz...', // 这里填入 base64 编码
+      success: function() {
+        console.log('字体加载成功');
+      },
+      fail: function(err) {
+        console.log('字体加载失败', err);
+      }
+    });
+  }
+})
+```
+
+
 ## 📚 参考资料
 
-- [Font-Spider GitHub 仓库](http://font-spider.org/)
 - [掘金教程文章](https://juejin.cn/post/6904541605265899527)
-- [中文 WebFont 优化方案](http://font-spider.org/)
-
-## 📄 许可证
-
-本项目仅供学习和参考使用。
-
-## 🤝 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
----
-
-**💻 Made with ❤️ by 字体优化爱好者**
+- [微信小程序自定义字体方案](https://juejin.cn/post/6844903838965563405)
+- [字体转换工具](https://transfonter.org/)
 
